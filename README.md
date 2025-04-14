@@ -1,0 +1,2 @@
+# mimosa
+Smart media compression
