@@ -1,0 +1,20 @@
+export default {
+    imageTip: 'Klicken Sie, um ein Bild auszuwählen oder ziehen Sie es hier ab',
+    imageSupport: 'Unterstützt JPG, JPEG, PNG, GIF, WEBP, TIF, TIFF, AVIF, HEIF, etc',
+    videoTip: 'Klicken Sie, um das Video auszuwählen oder ziehen Sie es hier ab',
+    videoSupport: 'Unterstützen Sie MOV, MP4, M4V, MPEG, WMV, MKV, TS, RMVB, AVI, FLV, WEBM, etc',
+    image: 'Bild',
+    video: 'Video',
+    ouputFolder: 'Ausgabeverzeichnis',
+    imageFormat: 'Ausgabeformat',
+    imageFormatValue: 'Originalformat',
+    imageQuality: 'Bildqualität',
+    videoFormat: 'Ausgabeformat',
+    videoFormatValue: 'Originalformat',
+    videoQuality: 'Videoqualität',
+    dimension: 'Auflösungsleistung',
+    dimensionValue: 'Originalauflösung',
+    originalSize: 'Originalgröße',
+    optimizedSize: 'Komprimierte Größe',
+    compression: 'Kompressionsverhältnis'
+}

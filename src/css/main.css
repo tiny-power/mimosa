@@ -1,0 +1,31 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+ul,
+li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+::-webkit-scrollbar {
+    width: 1px;
+    height: 1px;
+}
+
+::-webkit-scrollbar-thumb {
+    width: 1px;
+    background: #f3f1f2;
+}
+
+::-webkit-scrollbar-track {
+    width: 1px;
+    background: #f3f1f2;
+}
+
+.el-dialog {
+    border-radius: 8px !important;
+}

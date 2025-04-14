@@ -1,0 +1,20 @@
+export default {
+    imageTip: '点击选择图片或拖放到这里',
+    imageSupport: '支持JPG、JPEG、PNG、GIF、WEBP、TIF、TIFF、AVIF、HEIF等',
+    videoTip: '点击选择视频或拖放到这里',
+    videoSupport: '支持MOV、MP4、M4V、MPEG、WMV、MKV、TS、RMVB、AVI、FLV、WEBM等',
+    image: '图片',
+    video: '视频',
+    ouputFolder: '输出目录',
+    imageFormat: '输出格式',
+    imageFormatValue: '原始格式',
+    imageQuality: '图片质量',
+    videoFormat: '输出格式',
+    videoFormatValue: '原始格式',
+    videoQuality: '视频质量',
+    dimension: '分辨率',
+    dimensionValue: '原始分辨率',
+    originalSize: '原始大小',
+    optimizedSize: '压缩后大小',
+    compression: '压缩比'
+}

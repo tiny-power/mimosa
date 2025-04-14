@@ -1,0 +1,20 @@
+export default {
+    imageTip: 'Tap to select images or drop them here',
+    imageSupport: 'Supports JPG、JPEG、PNG、GIF、WEBP、TIF、TIFF、AVIF、HEIF etc',
+    videoTip: 'Tap to select videos or drop them here',
+    videoSupport: 'Support MOV、MP4、M4V、MPEG、WMV、MKV、TS、RMVB、AVI、FLV、WEBM etc',
+    image: 'image',
+    video: 'video',
+    ouputFolder: 'Ouput folder',
+    imageFormat: 'Image format',
+    imageFormatValue: 'Same as input',
+    imageQuality: 'Image quality',
+    videoFormat: 'Video format',
+    videoFormatValue: 'Same as input',
+    videoQuality: 'Video quality',
+    dimension: 'Dimension',
+    dimensionValue: 'Same as input',
+    originalSize: ' Original Size ',
+    optimizedSize: 'Optimized Size',
+    compression: 'Compression'
+}
