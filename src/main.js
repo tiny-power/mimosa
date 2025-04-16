@@ -11,6 +11,10 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 Vue.use(ElementUI)
 
+import videojs from 'video.js'
+import 'video.js/dist/video-js.css'
+Vue.prototype.$video = videojs
+
 Vue.config.productionTip = false
 
 new Vue({

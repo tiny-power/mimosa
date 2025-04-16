@@ -19,7 +19,7 @@ async function createMainWindow() {
     mainWindow = new BrowserWindow({
         title: 'Mimosa',
         center: true,
-        width: 900,
+        width: 1004,
         height: 500,
         resizable: false,
         maximizable: true,
@@ -107,7 +107,7 @@ async function createMainWindow() {
             platform,
             platform === 'win' ? 'ffprobe.exe' : 'ffprobe'
         )
-        return { ffmpegPath: ffmpegPath, ffprobePath: ffprobePath }
+        return { ffmpegPath: ffmpegPath, ffprobePath: ffprobePath, desktopPath: app.getPath('desktop') }
     })
 }
 

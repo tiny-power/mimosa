@@ -9,299 +9,336 @@
                 <div>
                     <i class="el-icon-download" style="font-size: 60px"></i>
                 </div>
-                <div style="font-size: 14px; color: #272727; margin: 15px 0px 5px 0px" v-if="type == 'image'">
-                    {{ $t('imageTip') }}
-                </div>
-                <div style="font-size: 14px; color: #272727; margin: 15px 0px 5px 0px" v-if="type == 'video'">
-                    {{ $t('videoTip') }}
-                </div>
-                <div style="font-size: 12px; margin-top: 5px; color: #606266" v-if="type == 'image'">
-                    {{ $t('imageSupport') }}
-                </div>
-                <div style="font-size: 12px; margin-top: 5px; color: #606266" v-if="type == 'video'">
-                    {{ $t('videoSupport') }}
+                <div style="font-size: 14px; color: #272727; margin: 15px 0px 5px 0px">
+                    Tap to select videos、images、pdf or drop them here
                 </div>
             </div>
-            <div v-else style="width: 560px; height: 470px; box-sizing: border-box; padding-top: 5px; overflow: auto">
+            <div
+                v-else
+                :style="{
+                    height: '470px',
+                    overflow: 'auto',
+                    display: 'grid',
+                    'column-gap': '10px',
+                    'row-gap': '10px',
+                    'grid-template-rows': fileList.length === 1 ? '1fr' : '1fr 1fr',
+                    'grid-template-columns':
+                        fileList.length === 1 ? '1fr' : fileList.length === 2 ? '1fr 1fr' : '1fr 1fr 1fr',
+                    'border-radius': '6px',
+                    'background-color': '#e9eae9',
+                    margin: '0px 15px',
+                    padding: '10px',
+                    'box-sizing': 'border-box'
+                }"
+            >
                 <div
-                    v-for="(file, index) in fileList"
+                    v-for="(item, index) in fileList"
                     :key="index"
+                    :style="{
+                        'background-color': '#969696',
+                        'border-radius': '16px',
+                        display: 'flex',
+                        'justify-content': 'center',
+                        'align-items': 'center',
+                        width: fileList.length === 1 ? '680px' : fileList.length === 2 ? '335px' : '220px',
+                        height: fileList.length === 1 ? '450px' : '220px',
+                        position: 'relative'
+                    }"
+                >
+                    <div
+                        style="
+                            top: 0.75rem;
+                            left: 0.75rem;
+                            padding: 0.25rem 0.75rem;
+                            border-radius: 0.5rem;
+                            background-color: hsla(0, 0%, 100%, 0.7);
+                            position: absolute;
+                            font-size: 13px;
+                        "
+                    >
+                        {{
+                            item.status === 'success'
+                                ? item.format.toUpperCase() +
+                                  ' | ' +
+                                  formatSize(item.sourceSize) +
+                                  ' | ' +
+                                  formatSize(item.targetSize)
+                                : item.format.toUpperCase() + ' | ' + formatSize(item.sourceSize)
+                        }}
+                    </div>
+                    <img :src="item.base64" style="width: 100%; height: 100%; object-fit: contain" />
+                    <!-- <button
+                        style="
+                            background-color: #2b333fb3;
+                            border: 0.06666em solid #fff;
+                            cursor: pointer;
+                            display: block;
+                            font-size: 3em;
+                            left: 50%;
+                            line-height: 1.5em;
+                            opacity: 1;
+                            padding: 0;
+                            position: absolute;
+                            top: 50%;
+                            width: 50px;
+                            height: 50px;
+                            border-radius: 50%;
+                            margin-top: -0.5em;
+                            margin-left: -0.5em;
+                        "
+                        v-if="item.type === 'video'"
+                    >
+                        <span
+                            class="vjs-icon"
+                            style="
+                                font-size: 32px;
+                                position: relative;
+                                top: -13px;
+                                left: 1px;
+                                font-family: VideoJS;
+                                font-weight: 400;
+                                color: #fff;
+                            "
+                        ></span>
+                    </button> -->
+                </div>
+            </div>
+        </div>
+        <div>
+            <div
+                style="
+                    width: 260px;
+                    border: 1px solid #d7dae2;
+                    font-size: 12px;
+                    border-radius: 8px;
+                    padding: 0px 8px 0px 8px;
+                    box-sizing: border-box;
+                    margin-bottom: 10px;
+                    background-color: #eeeced;
+                "
+            >
+                <div
                     style="
                         display: flex;
-                        font-size: 13px;
-                        color: #666;
-                        border-radius: 16px;
-                        background-color: #fff;
-                        height: 100px;
-                        box-sizing: border-box;
+                        justify-content: center;
                         align-items: center;
-                        padding: 15px;
-                        margin-bottom: 15px;
+                        border-bottom: 1px solid #d7dae2;
+                        height: 45px;
                     "
                 >
-                    <div
-                        style="
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            width: 115px;
-                            height: 70px;
-                            background-color: #000;
-                            border-radius: 4px;
-                        "
-                    >
-                        <img :src="file.data" style="max-height: 70px" />
-                    </div>
-                    <div
-                        style="
-                            flex: 1;
-                            display: flex;
-                            flex-direction: column;
-                            margin-left: 20px;
-                            height: 75px;
-                            box-sizing: border-box;
-                            justify-content: space-around;
-                        "
-                    >
-                        <div
-                            style="font-size: 16px; color: #000; font-weight: bold; display: flex; align-items: center"
+                    <span style="width: 124px">{{ $t('imageFormat') }}</span>
+                    <el-select v-model="imageFormat" size="mini" :popper-append-to-body="false" :disabled="disabled">
+                        <el-option
+                            v-for="item in imageFormatOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
                         >
-                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 280px">
-                                {{ file.name }}
-                            </div>
-                            <i
-                                class="el-icon-success"
-                                style="color: #67c23a; font-size: 24px; margin-left: 10px"
-                                v-if="file.status == 'end'"
-                            ></i>
-                            <el-progress
-                                type="circle"
-                                :percentage="file.percentage"
-                                :stroke-width="3"
-                                :width="30"
-                                style="margin-left: 10px"
-                                v-if="type === 'video' && (file.status == 'doing' || file.status == 'pause')"
-                            ></el-progress>
-                        </div>
-                        <div style="display: flex; align-items: center">
-                            <div
-                                style="
-                                    background-color: #f3f1f2;
-                                    border-radius: 8px;
-                                    padding: 3px 16px;
-                                    width: 70px;
-                                    text-align: center;
-                                    color: #fff;
-                                    margin-right: 10px;
-                                    font-size: 11px;
-                                "
-                            >
-                                <div style="color: #7a7975">{{ $t('originalSize') }}</div>
-                                <div style="color: #000; font-weight: bold">{{ formatSize(file.sourceSize) }}</div>
-                            </div>
-                            <div
-                                style="
-                                    background-color: #f3f1f2;
-                                    border-radius: 8px;
-                                    padding: 3px 12px;
-                                    width: 80px;
-                                    text-align: center;
-                                    color: #fff;
-                                    margin-right: 10px;
-                                    font-size: 11px;
-                                "
-                            >
-                                <div style="color: #7a7975">{{ $t('optimizedSize') }}</div>
-                                <div style="color: #000; font-weight: bold">{{ formatSize(file.targetSize) }}</div>
-                            </div>
-                            <div
-                                style="
-                                    background-color: #f3f1f2;
-                                    border-radius: 8px;
-                                    padding: 3px 16px;
-                                    width: 70px;
-                                    text-align: center;
-                                    color: #fff;
-                                    margin-right: 10px;
-                                    font-size: 11px;
-                                "
-                            >
-                                <div style="color: #7a7975">{{ $t('compression') }}</div>
-                                <div style="color: #000; font-weight: bold">
-                                    {{ formatCompression(file) }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <i
-                            class="el-icon-video-pause"
-                            style="cursor: pointer; font-size: 20px; margin-right: 10px"
-                            v-if="type === 'video' && file.status == 'doing'"
-                            @click="handlePause(index)"
-                        ></i>
-                        <i
-                            class="el-icon-video-play"
-                            style="cursor: pointer; font-size: 20px; margin-right: 10px"
-                            v-if="type === 'video' && file.status == 'pause'"
-                            @click="handleResume(index)"
-                        ></i>
-                        <i
-                            class="el-icon-folder"
-                            style="cursor: pointer; font-size: 20px; margin-right: 10px"
-                            @click="handleFolder"
-                            v-if="file.status == 'end'"
-                        ></i>
-                        <i
-                            class="el-icon-circle-close"
-                            style="cursor: pointer; font-size: 20px"
-                            @click="handleDelete(index)"
-                        ></i>
-                    </div>
+                        </el-option>
+                    </el-select>
+                </div>
+                <div style="display: flex; justify-content: center; align-items: center; height: 45px">
+                    <span style="width: 124px">{{ $t('imageQuality') }}</span>
+                    <el-select v-model="imageQuality" size="mini" :popper-append-to-body="false" :disabled="disabled">
+                        <el-option
+                            v-for="item in imageQualityOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                </div>
+            </div>
+            <div
+                style="
+                    width: 260px;
+                    border: 1px solid #d7dae2;
+                    font-size: 12px;
+                    border-radius: 8px;
+                    padding: 0px 8px 0px 8px;
+                    box-sizing: border-box;
+                    margin-bottom: 10px;
+                    background-color: #eeeced;
+                "
+            >
+                <div
+                    style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        border-bottom: 1px solid #d7dae2;
+                        height: 45px;
+                    "
+                >
+                    <span style="width: 124px">{{ $t('videoFormat') }}</span>
+                    <el-select v-model="videoFormat" size="mini" :popper-append-to-body="false" :disabled="disabled">
+                        <el-option
+                            v-for="item in videoFormatOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                </div>
+                <div
+                    style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        border-bottom: 1px solid #d7dae2;
+                        height: 45px;
+                    "
+                >
+                    <span style="width: 124px">{{ $t('videoQuality') }}</span>
+                    <el-select v-model="videoQuality" size="mini" :popper-append-to-body="false" :disabled="disabled">
+                        <el-option
+                            v-for="item in videoQualityOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                </div>
+            </div>
+            <div
+                style="
+                    width: 260px;
+                    border: 1px solid #d7dae2;
+                    font-size: 12px;
+                    border-radius: 8px;
+                    padding: 0px 8px 0px 8px;
+                    box-sizing: border-box;
+                    margin-bottom: 10px;
+                    background-color: #eeeced;
+                "
+            >
+                <div style="display: flex; justify-content: center; align-items: center; height: 45px">
+                    <span style="width: 124px">PDF quality</span>
+                    <el-select v-model="pdfQuality" size="mini" :popper-append-to-body="false" :disabled="disabled">
+                        <el-option
+                            v-for="item in pdfQualityOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                </div>
+            </div>
+            <div
+                style="
+                    width: 260px;
+                    border: 1px solid #d7dae2;
+                    font-size: 12px;
+                    border-radius: 8px;
+                    padding: 8px;
+                    box-sizing: border-box;
+                    margin-bottom: 10px;
+                    background-color: #eeeced;
+                "
+                v-if="!disabled"
+            >
+                <div style="display: flex; justify-content: center; align-items: center">
+                    <el-button
+                        style="
+                            width: 100%;
+                            border-radius: 16px;
+                            height: 42px;
+                            border: none;
+                            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+                            color: #272727;
+                        "
+                        @click="handleCompress"
+                        >Compress</el-button
+                    >
+                </div>
+            </div>
+            <div
+                style="
+                    width: 260px;
+                    border: 1px solid #d7dae2;
+                    font-size: 12px;
+                    border-radius: 8px;
+                    padding: 8px;
+                    box-sizing: border-box;
+                    background-color: #eeeced;
+                    margin-bottom: 10px;
+                "
+                v-if="!disabled"
+            >
+                <div style="display: flex; justify-content: center; align-items: center">
+                    <el-button
+                        type="primary"
+                        style="
+                            width: 100%;
+                            border-radius: 16px;
+                            height: 42px;
+                            border: none;
+                            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+                        "
+                        @click="handleReset"
+                        >Reset</el-button
+                    >
+                </div>
+            </div>
+            <div
+                style="
+                    width: 260px;
+                    border: 1px solid #d7dae2;
+                    font-size: 12px;
+                    border-radius: 8px;
+                    padding: 8px;
+                    box-sizing: border-box;
+                    background-color: #eeeced;
+                "
+                v-if="disabled && fileList.length != 0 && fileList.length != completeNumber"
+            >
+                <div style="display: flex; align-items: center">
+                    <span style="width: 124px">Compressing</span>
+                    <span style="flex: 1; text-align: right">{{
+                        Math.floor((completeNumber / fileList.length) * 100) + '%'
+                    }}</span>
+                </div>
+                <div
+                    :style="{
+                        'padding-left': completeNumber === 0 ? '8px' : '0px'
+                    }"
+                >
+                    <el-slider v-model="slider" :show-tooltip="false" :max="1"></el-slider>
+                </div>
+            </div>
+            <div
+                style="
+                    width: 260px;
+                    border: 1px solid #d7dae2;
+                    font-size: 12px;
+                    border-radius: 8px;
+                    padding: 8px;
+                    box-sizing: border-box;
+                    background-color: #eeeced;
+                "
+                v-if="fileList.length != 0 && fileList.length === completeNumber"
+            >
+                <div style="display: flex; align-items: center">
+                    <span style="width: 124px">{{ 'Output files(' + fileList.length + ')' }}</span>
+                    <span
+                        style="
+                            background-color: #fff;
+                            padding: 4px;
+                            border-radius: 6px;
+                            flex: 1;
+                            text-align: center;
+                            cursor: pointer;
+                        "
+                        @click="handleOpenPath"
+                        >Open in Finder</span
+                    >
                 </div>
             </div>
         </div>
-        <div
-            style="
-                width: 281px;
-                border: 1px solid #d7dae2;
-                font-size: 12px;
-                border-radius: 8px;
-                padding: 8px 8px 12px 8px;
-                box-sizing: border-box;
-            "
-        >
-            <div>
-                <el-radio-group
-                    v-model="type"
-                    size="mini"
-                    @input="handleSwitchType"
-                    fill="#272727"
-                    text-color="#ffffff"
-                >
-                    <el-radio-button label="image">{{ $t('image') }}</el-radio-button>
-                    <el-radio-button label="video">{{ $t('video') }}</el-radio-button>
-                </el-radio-group>
-            </div>
-            <div
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border-bottom: 1px solid #d7dae2;
-                    height: 45px;
-                "
-            >
-                <span style="width: 112px">{{ $t('ouputFolder') }}</span>
-                <el-input placeholder="Please select a directory" v-model="outputDir" disabled size="mini">
-                    <el-button slot="append" icon="el-icon-folder" @click="handleSetting"></el-button>
-                </el-input>
-            </div>
-            <div
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border-bottom: 1px solid #d7dae2;
-                    height: 45px;
-                "
-                v-if="type === 'video'"
-            >
-                <span style="width: 112px">{{ $t('videoFormat') }}</span>
-                <el-select v-model="videoFormat" size="mini" :popper-append-to-body="false">
-                    <el-option :label="$t('videoFormatValue')" :value="$t('videoFormatValue')"> </el-option>
-                    <el-option label="mp4" value="mp4"> </el-option>
-                    <!-- <el-option v-for="item in videoAccept" :key="item" :label="item" :value="item"> </el-option> -->
-                </el-select>
-            </div>
-            <div
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border-bottom: 1px solid #d7dae2;
-                    height: 45px;
-                "
-                v-if="type === 'image'"
-            >
-                <span style="width: 112px">{{ $t('imageFormat') }}</span>
-                <el-select v-model="imageFormat" size="mini" :popper-append-to-body="false">
-                    <el-option :label="$t('imageFormatValue')" :value="$t('imageFormatValue')"> </el-option>
-                    <el-option v-for="item in imagesAccept" :key="item" :label="item" :value="item"> </el-option>
-                </el-select>
-            </div>
-            <div
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border-bottom: 1px solid #d7dae2;
-                    height: 45px;
-                "
-                v-if="type === 'video'"
-            >
-                <span style="width: 112px">{{ $t('videoQuality') }}</span>
-                <el-select v-model="videoQuality" size="mini" :popper-append-to-body="false">
-                    <el-option
-                        v-for="item in videoQualityOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    >
-                    </el-option>
-                </el-select>
-            </div>
-            <div
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border-bottom: 1px solid #d7dae2;
-                    height: 45px;
-                "
-                v-if="type === 'image'"
-            >
-                <span style="width: 112px">{{ $t('imageQuality') }}</span>
-                <el-select v-model="imageQuality" size="mini" :popper-append-to-body="false">
-                    <el-option v-for="item in imageQualityOptions" :key="item" :label="item" :value="item"> </el-option>
-                </el-select>
-            </div>
-            <!-- <div style="height: 45px; border-bottom: 1px solid #d7dae2; padding: 10px 0 10px 0" v-if="type === 'video'">
-                <div>FPS {{ fps }}</div>
-                <el-slider v-model="fps"></el-slider>
-            </div> -->
-            <!-- <div
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border-bottom: 1px solid #d7dae2;
-                    height: 45px;
-                "
-                v-if="type === 'video'"
-            >
-                <span style="width: 112px">{{ $t('dimension') }}</span>
-                <el-select v-model="dimension" size="mini" :popper-append-to-body="false">
-                    <el-option :label="$t('dimensionValue')" :value="$t('dimensionValue')"> </el-option>
-                    <el-option
-                        v-for="item in dimensionOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    >
-                    </el-option>
-                </el-select>
-            </div> -->
-        </div>
-        <!-- <el-dropdown style="position: fixed; left: 555px; bottom: 18px" @command="handleCommand" size="medium">
-            <span class="el-dropdown-link">
-                <img style="width: 22px; height: 22px" src="@/assets/langs.png" />
-            </span>
-            <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="zh">中文</el-dropdown-item>
-                <el-dropdown-item command="en">English</el-dropdown-item>
-            </el-dropdown-menu>
-        </el-dropdown> -->
         <el-dialog title="Activate License" :visible.sync="licenseVisible" center>
             <div>
                 <el-input placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" v-model="licenseKey" clearable> </el-input>
@@ -319,28 +356,17 @@ const fs = require('fs')
 const path = require('path')
 const ffmpeg = require('fluent-ffmpeg')
 import { ClientJS } from 'clientjs'
+import { addAbortSignal } from 'stream'
 export default {
     data() {
         return {
-            type: 'image',
             clientHeight: document.documentElement.clientHeight || document.body.clientHeight,
             fileList: [],
             videoAccept: ['mov', 'mp4', 'm4v', 'mpeg', 'wmv', 'mkv', 'rmvb', 'avi', 'flv', 'webm'],
             imagesAccept: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'tif', 'tiff', 'avif', 'heif'],
+            pdfAccept: ['pdf'],
             outputDir: '',
             ffmpegList: [],
-            imageFormat: '',
-            imageQuality: 75,
-            imageQualityOptions: [95, 85, 75, 65, 55, 45, 35, 25, 15, 10],
-            videoFormat: '',
-            videoQuality: 28,
-            videoQualityOptions: [
-                { value: 20, label: 'highest' },
-                { value: 23, label: 'high' },
-                { value: 26, label: 'good' },
-                { value: 28, label: 'medium' },
-                { value: 30, label: 'acceptable' }
-            ],
             dimension: '',
             dimensionOptions: [
                 { value: '7680x4320', label: '8K(7680x4320)' },
@@ -351,27 +377,64 @@ export default {
                 { value: '640x480', label: '480p(640x480)' },
                 { value: '480x360', label: '360p(480x360)' }
             ],
-            fps: 15,
             timestampList: [],
             isPay: false,
             isFfmpeg: false,
             licenseVisible: false,
-            licenseKey: ''
+            licenseKey: '',
+            imageFormat: 'same',
+            imageFormatOptions: [
+                { value: 'same', label: 'Same as input' },
+                { value: 'webp', label: 'webp' },
+                { value: 'jpg', label: 'jpg' },
+                { value: 'png', label: 'png' }
+            ],
+            imageQuality: 75,
+            imageQualityOptions: [
+                { value: 75, label: 'highest' },
+                { value: 65, label: 'high' },
+                { value: 55, label: 'good' },
+                { value: 45, label: 'medium' },
+                { value: 35, label: 'acceptable' }
+            ],
+            videoFormat: 'same',
+            videoFormatOptions: [
+                { value: 'same', label: 'Same as input' },
+                { value: 'mp4', label: 'mp4' },
+                { value: 'webm', label: 'webm' }
+            ],
+            videoQuality: 28,
+            videoQualityOptions: [
+                { value: 20, label: 'highest' },
+                { value: 23, label: 'high' },
+                { value: 26, label: 'good' },
+                { value: 28, label: 'medium' },
+                { value: 30, label: 'acceptable' }
+            ],
+            pdfFormat: 'pdf',
+            pdfQuality: 'hight',
+            pdfQualityOptions: [
+                { value: 'best', label: 'best' },
+                { value: 'hight', label: 'hight' },
+                { value: 'balance', label: 'balance' },
+                { value: 'low', label: 'low' }
+            ],
+            disabled: false,
+            dirname: '',
+            completeNumber: 0,
+            slider: 0
+        }
+    },
+    watch: {
+        completeNumber(newVal, oldVal) {
+            if (newVal === this.fileList.length) {
+                this.disabled = false
+            }
+            this.slider = newVal / this.fileList.length
         }
     },
     mounted() {
-        this.isPay = localStorage.getItem('isPay') || false
-        let message = this.$i18n.messages[this.$i18n.locale]
-        this.imageFormat = message.imageFormatValue
-        this.videoFormat = message.videoFormatValue
-        this.dimension = message.dimensionValue
-
-        let outputDir = localStorage.getItem('outputDir')
-        if (outputDir) {
-            this.outputDir = outputDir
-        } else {
-            this.getDesktopPath()
-        }
+        this.isPay = true //localStorage.getItem('isPay') || false
         document.getElementById('drop').addEventListener('dragover', event => {
             event.preventDefault()
         })
@@ -383,6 +446,7 @@ export default {
             const files = event.dataTransfer.files
             if (this.isPay) {
                 for (let i = 0; i < files.length; i++) {
+                    this.dirname = path.dirname(files[i].path)
                     this.walkDir(files[i].path)
                 }
             } else {
@@ -392,6 +456,30 @@ export default {
         })
     },
     methods: {
+        handleCompress() {
+            this.completeNumber = 0
+            this.slider = 0
+            if (this.fileList.length === 0) {
+                this.disabled = false
+            } else {
+                this.disabled = true
+            }
+            for (let i = 0; i < this.fileList.length; i++) {
+                let item = this.fileList[i]
+                if (item.type === 'image') {
+                    this.compressImage(i, item)
+                } else if (item.type === 'video') {
+                    this.compressVideo(i, item)
+                } else if (item.type === 'pdf') {
+                    this.compressPdf(i, item)
+                }
+            }
+        },
+        handleReset() {
+            this.fileList = []
+            this.completeNumber = 0
+            this.slider = 0
+        },
         handleLicenseKey() {
             if (this.licenseKey) {
                 const client = new ClientJS()
@@ -411,16 +499,15 @@ export default {
                 })
             }
         },
+        handleOpenPath() {
+            window.ipcRenderer.invoke('openPath', this.outputDir + '/mimosa')
+        },
         async getFfmpegPath() {
             let result = await window.ipcRenderer.invoke('getFfmpegPath')
             ffmpeg.setFfmpegPath(result.ffmpegPath)
             ffmpeg.setFfprobePath(result.ffprobePath)
+            this.outputDir = result.desktopPath
             this.isFfmpeg = true
-        },
-        async getDesktopPath() {
-            let result = await window.ipcRenderer.invoke('getDesktopPath')
-            this.outputDir = result
-            localStorage.setItem('outputDir', result)
         },
         async handleClick() {
             if (!this.isFfmpeg) {
@@ -430,6 +517,7 @@ export default {
                 let filePaths = await window.ipcRenderer.invoke('dialog:openFile')
                 if (filePaths) {
                     for (let i = 0; i < filePaths.length; i++) {
+                        this.dirname = path.dirname(filePaths[i])
                         this.walkDir(filePaths[i])
                     }
                 }
@@ -444,7 +532,6 @@ export default {
             let message = this.$i18n.messages[this.$i18n.locale]
             this.imageFormat = message.imageFormatValue
             this.videoFormat = message.videoFormatValue
-            this.dimension = message.dimensionValue
         },
         handlePause(index) {
             let command = this.ffmpegList[index]
@@ -473,16 +560,6 @@ export default {
                 this.fileList.splice(index, 1)
             }
         },
-        async handleFolder() {
-            await window.ipcRenderer.invoke('openPath', this.outputDir)
-        },
-        async handleSetting() {
-            let result = await window.ipcRenderer.invoke('dialog:openDirectory')
-            if (result) {
-                this.outputDir = result
-                localStorage.setItem('outputDir', result)
-            }
-        },
         walkDir(dir) {
             let lstatSync = fs.lstatSync(dir)
             if (lstatSync.isDirectory()) {
@@ -492,262 +569,273 @@ export default {
                     if (stat.isDirectory()) {
                         this.walkDir(fullPath)
                     } else {
-                        let format = fullPath.substr(fullPath.lastIndexOf('.') + 1).toLocaleLowerCase()
-                        if (this.type === 'image' && this.imagesAccept.includes(format)) {
+                        let format = path.extname(fullPath).substring(1).toLocaleLowerCase()
+                        if (this.imagesAccept.includes(format)) {
                             let that = this
-                            fs.readFile(fullPath, function (err, data) {
+                            fs.readFile(fullPath, (err, data) => {
                                 if (err) return console.log(err)
                                 that.fileList.push({
-                                    source: fullPath,
-                                    sourceSize: stat.size,
-                                    targetSize: '',
+                                    type: 'image',
                                     name: item,
-                                    type: that.type,
-                                    status: 'end',
-                                    data: 'data:image/png;base64,' + data.toString('base64')
+                                    format: format,
+                                    sourcePath: fullPath,
+                                    sourceSize: stat.size,
+                                    targetPath: '',
+                                    targetSize: '',
+                                    percentage: 0,
+                                    status: 'prepare',
+                                    base64: 'data:image/png;base64,' + data.toString('base64')
                                 })
-                                that.compressImages(that.fileList.length - 1, fullPath)
                             })
-                        } else if (this.type === 'video' && this.videoAccept.includes(format)) {
-                            let name = ''
-                            if (this.videoFormat == 'Same as input') {
-                                name = item
-                            } else {
-                                name = item.replace('.' + format, '.' + this.videoFormat)
-                            }
+                        } else if (this.videoAccept.includes(format)) {
+                            let that = this
+                            fs.mkdir(this.dirname, { recursive: true }, err => {
+                                if (err) {
+                                    console.error(err)
+                                    return
+                                }
+                            })
+                            const timestamp = Date.now()
+                            ffmpeg(fullPath)
+                                .outputOptions(['-frames:v 1'])
+                                .on('end', () => {
+                                    let data = fs.readFileSync(this.dirname + '/' + timestamp + '.png')
+                                    that.fileList.push({
+                                        type: 'video',
+                                        name: item,
+                                        format: format,
+                                        sourcePath: fullPath,
+                                        sourceSize: stat.size,
+                                        targetPath: '',
+                                        targetSize: '',
+                                        percentage: 0,
+                                        status: 'prepare',
+                                        base64: 'data:image/png;base64,' + data.toString('base64')
+                                    })
+                                    fs.unlinkSync(this.dirname + '/' + timestamp + '.png')
+                                })
+                                .save(this.dirname + '/' + timestamp + '.png')
+                        } else if (this.pdfAccept.includes(format)) {
                             this.fileList.push({
-                                source: fullPath,
+                                type: 'pdf',
+                                name: item,
+                                format: format,
+                                sourcePath: fullPath,
                                 sourceSize: stat.size,
+                                targetPath: '',
                                 targetSize: '',
-                                name: name,
-                                type: this.type,
                                 percentage: 0,
-                                status: 'doing'
+                                status: 'prepare'
                             })
-                            let currentTimestamp = Date.now()
-                            this.timestampList.push(currentTimestamp)
-                            this.compressVideo(currentTimestamp, fullPath)
                         }
                     }
                 })
             } else {
                 let format = path.extname(dir).substring(1).toLocaleLowerCase()
-                if (this.type === 'image' && this.imagesAccept.includes(format)) {
+                if (this.imagesAccept.includes(format)) {
                     let that = this
-                    fs.readFile(dir, function (err, data) {
+                    fs.readFile(dir, (err, data) => {
                         if (err) return console.log(err)
                         that.fileList.push({
-                            source: dir,
-                            sourceSize: lstatSync.size,
-                            targetSize: '',
+                            type: 'image',
                             name: path.basename(dir),
-                            type: that.type,
-                            status: 'end',
-                            data: 'data:image/png;base64,' + data.toString('base64')
+                            format: format,
+                            sourcePath: dir,
+                            sourceSize: lstatSync.size,
+                            targetPath: '',
+                            targetSize: '',
+                            percentage: 0,
+                            status: 'prepare',
+                            base64: 'data:image/png;base64,' + data.toString('base64')
                         })
-                        that.compressImages(that.fileList.length - 1, dir)
                     })
-                } else if (this.type === 'video' && this.videoAccept.includes(format)) {
-                    let name = ''
-                    if (this.videoFormat == 'Same as input') {
-                        name = path.basename(dir)
-                    } else {
-                        name = path.basename(dir).replace('.' + format, '.' + this.videoFormat)
-                    }
+                } else if (this.videoAccept.includes(format)) {
+                    let that = this
+                    fs.mkdir(this.dirname, { recursive: true }, err => {
+                        if (err) {
+                            console.error(err)
+                            return
+                        }
+                    })
+                    const timestamp = Date.now()
+                    ffmpeg(dir)
+                        .outputOptions(['-frames:v 1'])
+                        .on('end', () => {
+                            let data = fs.readFileSync(this.dirname + '/' + timestamp + '.png')
+                            that.fileList.push({
+                                type: 'video',
+                                name: path.basename(dir),
+                                format: format,
+                                sourcePath: dir,
+                                sourceSize: lstatSync.size,
+                                targetPath: '',
+                                targetSize: '',
+                                percentage: 0,
+                                status: 'prepare',
+                                base64: 'data:image/png;base64,' + data.toString('base64')
+                            })
+                            fs.unlinkSync(this.dirname + '/' + timestamp + '.png')
+                        })
+                        .save(this.dirname + '/' + timestamp + '.png')
+                } else if (this.pdfAccept.includes(format)) {
                     this.fileList.push({
-                        source: dir,
+                        type: 'pdf',
+                        name: path.basename(dir),
+                        format: format,
+                        sourcePath: dir,
                         sourceSize: lstatSync.size,
+                        targetPath: '',
                         targetSize: '',
-                        name: name,
-                        type: this.type,
                         percentage: 0,
-                        status: 'doing'
+                        status: 'prepare'
                     })
-                    let currentTimestamp = Date.now()
-                    this.timestampList.push(currentTimestamp)
-                    this.compressVideo(currentTimestamp, dir)
                 }
             }
         },
-        compressImages(index, inputPath) {
-            let filename = path.basename(inputPath)
-            let sourceFormat = inputPath.substr(inputPath.lastIndexOf('.') + 1).toLocaleLowerCase()
+        compressImage(index, attribute) {
             const options = {
                 quality: this.imageQuality
             }
             let command
-            if (sourceFormat == 'gif') {
-                command = sharp(inputPath, {
+            if (attribute.format == 'gif') {
+                command = sharp(attribute.sourcePath, {
                     animated: true,
                     limitInputPixels: false
                 })
             } else {
-                command = sharp(inputPath)
+                command = sharp(attribute.sourcePath)
             }
-            if (this.imageFormat != 'Same as input') {
+            if (this.imageFormat != 'same') {
                 command = command.toFormat(this.imageFormat)
             }
-            if (sourceFormat == 'jpg' || sourceFormat == 'jpeg') {
+            if (attribute.format == 'jpg' || attribute.format == 'jpeg') {
                 command = command.jpeg({
                     quality: options.quality,
                     mozjpeg: true
                 })
-            } else if (sourceFormat == 'png') {
+            } else if (attribute.format == 'png') {
                 command = command.png({
                     quality: options.quality
                 })
-            } else if (sourceFormat == 'gif') {
+            } else if (attribute.format == 'gif') {
                 command = command.gif({
                     colours: parseInt((options.quality * 256) / 100, 10)
                 })
-            } else if (sourceFormat == 'webp') {
+            } else if (attribute.format == 'webp') {
                 command = command.webp({
                     quality: options.quality
                 })
-            } else if (sourceFormat == 'tif' || sourceFormat == 'tiff') {
+            } else if (attribute.format == 'tif' || attribute.format == 'tiff') {
                 command = command.tiff({
                     quality: options.quality
                 })
-            } else if (sourceFormat == 'avif') {
+            } else if (attribute.format == 'avif') {
                 command = command.avif({
                     quality: options.quality
                 })
-            } else if (sourceFormat == 'heif') {
+            } else if (attribute.format == 'heif') {
                 command = command.heif({
                     quality: options.quality
                 })
             }
-            if (this.imageFormat == '原始格式' || this.imageFormat == 'Same as input') {
-                command = command.toFile(this.outputDir + '/' + filename, (err, info) => {
-                    if (err) {
-                        console.error(err)
-                    } else {
-                        let item = this.fileList[index]
-                        item.targetSize = info.size
-                        this.$set(this.fileList, index, item)
-                    }
-                })
-            } else {
-                command = command.toFile(
-                    this.outputDir + '/' + filename.replace('.' + sourceFormat, '.' + this.imageFormat),
-                    (err, info) => {
-                        if (err) {
-                            console.error(err)
-                        } else {
-                            let item = this.fileList[index]
-                            item.targetSize = info.size
-                            this.$set(this.fileList, index, item)
-                        }
-                    }
-                )
+            let outputPath = this.outputDir + '/mimosa' + attribute.sourcePath.replace(this.dirname, '')
+            if (this.imageFormat != 'same') {
+                outputPath = outputPath.replace('.' + attribute.format, '.' + this.imageFormat)
             }
-        },
-        compressVideo(timestamp, inputPath) {
-            let filename = path.basename(inputPath)
-            let index = this.timestampList.indexOf(timestamp)
-            let item = this.fileList[index]
-            if (this.videoFormat != 'Same as input') {
-                filename = item.name
-            }
-            let that = this
-            ffmpeg(inputPath)
-                .outputOptions(['-frames:v 1'])
-                .on('end', () => {
-                    const imageBuffer = fs.readFileSync(this.outputDir + '/' + timestamp + '.png')
-                    const base64Image = imageBuffer.toString('base64')
-                    if (item) {
-                        item.data = 'data:image/png;base64,' + base64Image
-                        this.$set(that.fileList, index, item)
-                    }
-                    fs.unlinkSync(this.outputDir + '/' + timestamp + '.png')
-                })
-                .save(this.outputDir + '/' + timestamp + '.png')
-            if (this.dimension == '原始分辨率' || this.dimension == 'Same as input') {
-                let command = ffmpeg(inputPath)
-                    .outputOptions(['-crf ' + this.videoQuality, '-preset veryfast'])
-                    .output(this.outputDir + '/' + filename)
-                    .on('progress', function (progress) {
-                        if (progress.percent >= 100) {
-                            item.percentage = 100
-                        } else {
-                            item.percentage = parseInt(progress.percent)
-                        }
-                        that.$set(that.fileList, index, item)
-                    })
-                    .on('end', () => {
-                        console.log('完成')
-                        ffmpeg(this.outputDir + '/' + filename).ffprobe((err, metadata) => {
-                            item.targetSize = metadata.format.size
-                            item.status = 'end'
-                            this.$set(this.fileList, index, item)
-                        })
-                    })
-                    .on('error', () => {
-                        console.log('error')
-                    })
-                    .run()
-                this.$set(this.ffmpegList, this.timestampList.indexOf(timestamp), command)
-            } else {
-                let command = ffmpeg(inputPath)
-                    .size(this.dimension)
-                    .autopad()
-                    .outputOptions(['-crf ' + this.videoQuality, '-preset veryfast'])
-                    .output(this.outputDir + '/' + filename)
-                    .on('progress', function (progress) {
-                        if (progress.percent >= 100) {
-                            item.percentage = 100
-                        } else {
-                            item.percentage = parseInt(progress.percent)
-                        }
-                        that.$set(that.fileList, index, item)
-                    })
-                    .on('end', () => {
-                        console.log('完成')
-                        ffmpeg(this.outputDir + '/' + filename).ffprobe((err, metadata) => {
-                            item.targetSize = metadata.format.size
-                            item.status = 'end'
-                            this.$set(this.fileList, index, item)
-                        })
-                    })
-                    .on('error', () => {
-                        console.log('error')
-                    })
-                    .run()
-                this.$set(this.ffmpegList, this.timestampList.indexOf(timestamp), command)
-            }
-        },
-        formatConvert(inputPath, targetFormat) {
-            let sourceFormat = inputPath.substr(inputPath.lastIndexOf('.') + 1).toLocaleLowerCase()
-            let command = sharp(inputPath)
-            if (targetFormat == 'jpg' || targetFormat == 'jpeg') {
-                if (sourceFormat == 'gif' || sourceFormat == 'png') {
-                    command = command.flatten({ background: '#ffffff' })
+            fs.mkdir(path.dirname(outputPath), { recursive: true }, err => {
+                if (err) {
+                    console.error(err)
+                    return
                 }
-                command = command.jpeg()
-            } else if (targetFormat == 'png') {
-                command = command.png()
-            } else if (targetFormat == 'gif') {
-                command = command.gif()
-            } else if (targetFormat == 'webp') {
-                command = command.webp()
-            } else if (targetFormat == 'tif' || targetFormat == 'tiff') {
-                if (sourceFormat == 'gif' || sourceFormat == 'png') {
-                    command = command.flatten({ background: '#ffffff' })
-                }
-                command = command.tiff()
-            } else if (targetFormat == 'avif') {
-                command = command.avif()
-            } else if (targetFormat == 'heif') {
-                command = command.heif()
-            }
+            })
             command = command.toFile(outputPath, (err, info) => {
                 if (err) {
                     console.error(err)
+                    attribute.status = 'error'
                 } else {
-                    console.log(info)
+                    attribute.targetSize = info.size
+                    attribute.targetPath = outputPath
+                    attribute.status = 'success'
                 }
+                this.completeNumber = this.completeNumber + 1
+                this.$set(this.fileList, index, attribute)
             })
         },
+        compressVideo(index, attribute) {
+            let that = this
+            let outputPath = this.outputDir + '/mimosa' + attribute.sourcePath.replace(this.dirname, '')
+            if (this.videoFormat != 'same') {
+                outputPath = outputPath.replace('.' + attribute.format, '.' + this.videoFormat)
+            }
+            fs.mkdir(path.dirname(outputPath), { recursive: true }, err => {
+                if (err) {
+                    console.error(err)
+                    return
+                }
+            })
+            if (!this.dimension) {
+                let command = ffmpeg(attribute.sourcePath)
+                    .outputOptions(['-crf ' + this.videoQuality, '-preset veryfast'])
+                    .output(outputPath)
+                    .on('progress', progress => {
+                        if (progress.percent >= 100) {
+                            attribute.percentage = 100
+                        } else {
+                            attribute.percentage = parseInt(progress.percent)
+                        }
+                        that.$set(that.fileList, index, attribute)
+                    })
+                    .on('end', () => {
+                        console.log('end')
+                        ffmpeg(outputPath).ffprobe((err, metadata) => {
+                            attribute.targetSize = metadata.format.size
+                            attribute.status = 'success'
+                            attribute.targetPath = outputPath
+                            this.$set(this.fileList, index, attribute)
+                            this.completeNumber = this.completeNumber + 1
+                        })
+                    })
+                    .on('error', () => {
+                        console.log('error')
+                        attribute.status = 'error'
+                        this.$set(this.fileList, index, attribute)
+                    })
+                    .run()
+                //this.$set(this.ffmpegList, this.timestampList.indexOf(timestamp), command)
+            } else {
+                let command = ffmpeg(attribute.sourcePath)
+                    .size(this.dimension)
+                    .autopad()
+                    .outputOptions(['-crf ' + this.videoQuality, '-preset veryfast'])
+                    .output(outputPath)
+                    .on('progress', progress => {
+                        if (progress.percent >= 100) {
+                            attribute.percentage = 100
+                        } else {
+                            attribute.percentage = parseInt(progress.percent)
+                        }
+                        that.$set(that.fileList, index, attribute)
+                    })
+                    .on('end', () => {
+                        console.log('end')
+                        ffmpeg(outputPath).ffprobe((err, metadata) => {
+                            attribute.targetSize = metadata.format.size
+                            attribute.status = 'success'
+                            attribute.targetPath = outputPath
+                            this.$set(this.fileList, index, attribute)
+                            this.completeNumber = this.completeNumber + 1
+                        })
+                    })
+                    .on('error', () => {
+                        console.log('error')
+                        attribute.status = 'error'
+                        this.$set(this.fileList, index, attribute)
+                    })
+                    .run()
+                //this.$set(this.ffmpegList, this.timestampList.indexOf(timestamp), command)
+            }
+        },
+        compressPdf(index, attribute) {},
         formatSize(numberOfBytes) {
             if (numberOfBytes) {
                 const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
@@ -761,18 +849,6 @@ export default {
             } else {
                 return '-'
             }
-        },
-        formatCompression(file) {
-            if (file.targetSize) {
-                return parseInt(((file.sourceSize - file.targetSize) / file.sourceSize) * 100) + ' %'
-            } else {
-                return '-'
-            }
-        },
-        handleSwitchType() {
-            this.fileList = []
-            this.ffmpegList = []
-            this.timestampList = []
         }
     }
 }
@@ -782,14 +858,14 @@ export default {
 .flex-container {
     width: 100%;
     display: flex;
-    padding: 15px 15px 15px 0px;
+    padding: 15px 14px 15px 0px;
     box-sizing: border-box;
     background-color: #f3f1f2;
 }
 .draggable {
     border-radius: 8px;
-    width: 570px;
-    height: 470px;
+    width: 700px;
+    height: 580px;
     color: #272727;
     display: flex;
     justify-content: center;
@@ -803,6 +879,7 @@ export default {
 ::v-deep .el-input__inner {
     padding: 0 7.7px;
     background-color: #f3f1f2;
+    color: #272727;
 }
 ::v-deep .el-input-group__append {
     background-color: #f3f1f2;
@@ -844,5 +921,12 @@ export default {
 }
 ::v-deep .el-select-dropdown__item.selected {
     color: #272727;
+}
+::v-deep .el-button:hover {
+    color: #272727;
+    background-color: #fff;
+}
+.vjs-icon:before {
+    content: '\f101';
 }
 </style>
