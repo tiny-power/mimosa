@@ -799,6 +799,7 @@ export default {
                         console.log('error')
                         attribute.status = 'error'
                         this.$set(this.fileList, index, attribute)
+                        this.completeNumber = this.completeNumber + 1
                     })
                     .run()
                 //this.$set(this.ffmpegList, this.timestampList.indexOf(timestamp), command)
@@ -830,6 +831,7 @@ export default {
                         console.log('error')
                         attribute.status = 'error'
                         this.$set(this.fileList, index, attribute)
+                        this.completeNumber = this.completeNumber + 1
                     })
                     .run()
                 //this.$set(this.ffmpegList, this.timestampList.indexOf(timestamp), command)
