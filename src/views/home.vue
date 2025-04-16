@@ -66,7 +66,10 @@
                                 : item.format.toUpperCase() + ' | ' + formatSize(item.sourceSize)
                         }}
                     </div>
-                    <img :src="item.base64" style="width: 100%; height: 100%; object-fit: contain" />
+                    <img
+                        :src="item.base64"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem"
+                    />
                     <!-- <button
                         style="
                             background-color: #2b333fb3;
