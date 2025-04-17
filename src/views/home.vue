@@ -464,7 +464,7 @@ export default {
         }
     },
     mounted() {
-        this.isPay = true //localStorage.getItem('isPay') || false
+        this.isPay = localStorage.getItem('isPay') || false
         document.getElementById('drop').addEventListener('dragover', event => {
             event.preventDefault()
         })
@@ -530,7 +530,7 @@ export default {
             }
         },
         handleOpenPath() {
-            window.ipcRenderer.invoke('openPath', this.outputDir + '/mimosa')
+            window.ipcRenderer.invoke('openPath', path.join(this.outputDir, 'mimosa'))
         },
         async getFfmpegPath() {
             let result = await window.ipcRenderer.invoke('getFfmpegPath')
@@ -800,7 +800,7 @@ export default {
                     quality: options.quality
                 })
             }
-            let outputPath = this.outputDir + '/mimosa' + attribute.sourcePath.replace(this.dirname, '')
+            let outputPath = this.outputDir + '/mimosa/' + attribute.sourcePath.replace(this.dirname, '')
             if (this.imageFormat != 'same') {
                 outputPath = outputPath.replace('.' + attribute.format, '.' + this.imageFormat)
             }
@@ -825,7 +825,7 @@ export default {
         },
         compressVideo(index, attribute) {
             let that = this
-            let outputPath = this.outputDir + '/mimosa' + attribute.sourcePath.replace(this.dirname, '')
+            let outputPath = this.outputDir + '/mimosa/' + attribute.sourcePath.replace(this.dirname, '')
             if (this.videoFormat != 'same') {
                 outputPath = outputPath.replace('.' + attribute.format, '.' + this.videoFormat)
             }
@@ -900,7 +900,7 @@ export default {
             }
         },
         async compressPdf(index, attribute) {
-            let outputPath = this.outputDir + '/mimosa' + attribute.sourcePath.replace(this.dirname, '')
+            let outputPath = this.outputDir + '/mimosa/' + attribute.sourcePath.replace(this.dirname, '')
             if (this.pdfFormat === 'jpeg') {
                 outputPath = outputPath.replace('.' + attribute.format, '.jpg')
             } else if (this.pdfFormat === 'png16m') {
