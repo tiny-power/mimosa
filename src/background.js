@@ -116,14 +116,20 @@ async function createMainWindow() {
         }
     })
 
-    ipcMain.handle('compressPdf', async (event, inputPath, outputPath, pdfQuality) => {
-        let command =
-            'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/' +
-            pdfQuality +
-            ' -dNOPAUSE -dQUIET -dBATCH -sOutputFile=' +
-            outputPath +
-            ' ' +
-            inputPath
+    ipcMain.handle('compressPdf', async (event, inputPath, outputPath, pdfQuality, pdfFormat) => {
+        //gswin32.exe
+        let command = ''
+        if (pdfFormat === 'same') {
+            command =
+                'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/' +
+                pdfQuality +
+                ' -dNOPAUSE -dQUIET -dBATCH -sOutputFile=' +
+                outputPath +
+                ' ' +
+                inputPath
+        } else {
+            command = 'gs -q -sDEVICE=' + pdfFormat + ' -r300 -o ' + outputPath + ' ' + inputPath
+        }
         let result = execSync(command)
         if (result.toString()) {
             console.log(result.toString())

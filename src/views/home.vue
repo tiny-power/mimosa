@@ -107,7 +107,7 @@
                 </div>
             </div>
         </div>
-        <div>
+        <div style="height: 470px; overflow: auto">
             <div
                 style="
                     width: 260px;
@@ -218,6 +218,26 @@
                     background-color: #eeeced;
                 "
             >
+                <!-- <div
+                    style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        border-bottom: 1px solid #d7dae2;
+                        height: 45px;
+                    "
+                >
+                    <span style="width: 124px">Pdf format</span>
+                    <el-select v-model="pdfFormat" size="mini" :popper-append-to-body="false" :disabled="disabled">
+                        <el-option
+                            v-for="item in pdfFormatOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                </div> -->
                 <div style="display: flex; justify-content: center; align-items: center; height: 45px">
                     <span style="width: 124px">PDF quality</span>
                     <el-select v-model="pdfQuality" size="mini" :popper-append-to-body="false" :disabled="disabled">
@@ -415,6 +435,12 @@ export default {
                 { value: 30, label: 'acceptable' }
             ],
             pdfFormat: 'same',
+            pdfFormatOptions: [
+                { value: 'same', label: 'Same as input' },
+                { value: 'jpeg', label: 'JPG' },
+                { value: 'png16m', label: 'PNG' },
+                { value: 'tiff24nc', label: 'TIFF' }
+            ],
             pdfQuality: 'ebook',
             pdfQualityOptions: [
                 { value: 'prepress', label: 'best' },
@@ -875,8 +901,12 @@ export default {
         },
         async compressPdf(index, attribute) {
             let outputPath = this.outputDir + '/mimosa' + attribute.sourcePath.replace(this.dirname, '')
-            if (this.pdfFormat != 'same') {
-                outputPath = outputPath.replace('.' + attribute.format, '.' + this.imageFormat)
+            if (this.pdfFormat === 'jpeg') {
+                outputPath = outputPath.replace('.' + attribute.format, '.jpg')
+            } else if (this.pdfFormat === 'png16m') {
+                outputPath = outputPath.replace('.' + attribute.format, '.png')
+            } else if (this.pdfFormat === 'tiff24nc') {
+                outputPath = outputPath.replace('.' + attribute.format, '.tif')
             }
             fs.mkdir(path.dirname(outputPath), { recursive: true }, err => {
                 if (err) {
@@ -888,7 +918,8 @@ export default {
                 'compressPdf',
                 attribute.sourcePath,
                 outputPath,
-                this.pdfQuality
+                this.pdfQuality,
+                this.pdfFormat
             )
             if (result) {
                 const stats = fs.statSync(outputPath)
