@@ -2,6 +2,7 @@ import { app, protocol, BrowserWindow, ipcMain, dialog, shell } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 import path from 'path'
+const os = require('os')
 const { exec, execSync } = require('child_process')
 
 protocol.registerSchemesAsPrivileged([
@@ -117,18 +118,28 @@ async function createMainWindow() {
     })
 
     ipcMain.handle('compressPdf', async (event, inputPath, outputPath, pdfQuality, pdfFormat) => {
-        //gswin32.exe
         let command = ''
+        let gsPlatform = ''
+        if (process.platform === 'win32') {
+            if (os.arch() === 'x64') {
+                gsPlatform = 'gswin64c'
+            } else {
+                gsPlatform = 'gswin32c'
+            }
+        } else {
+            gsPlatform = 'gs'
+        }
         if (pdfFormat === 'same') {
             command =
-                'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/' +
+                gsPlatform +
+                ' -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/' +
                 pdfQuality +
                 ' -dNOPAUSE -dQUIET -dBATCH -sOutputFile=' +
                 outputPath +
                 ' ' +
                 inputPath
         } else {
-            command = 'gs -q -sDEVICE=' + pdfFormat + ' -r300 -o ' + outputPath + ' ' + inputPath
+            command = gsPlatform + ' -q -sDEVICE=' + pdfFormat + ' -r300 -o ' + outputPath + ' ' + inputPath
         }
         let result = execSync(command)
         if (result.toString()) {
@@ -140,8 +151,19 @@ async function createMainWindow() {
     })
 
     ipcMain.handle('pdfToImage', async (event, inputPath, outputPath) => {
+        let gsPlatform = ''
+        if (process.platform === 'win32') {
+            if (os.arch() === 'x64') {
+                gsPlatform = 'gswin64c'
+            } else {
+                gsPlatform = 'gswin32c'
+            }
+        } else {
+            gsPlatform = 'gs'
+        }
         let command =
-            'gs -sDEVICE=png16m -r300 -dFirstPage=1 -dLastPage=1 -o ' +
+            gsPlatform +
+            ' -sDEVICE=png16m -r300 -dFirstPage=1 -dLastPage=1 -o ' +
             outputPath +
             ' -dNOPAUSE -dQUIET -dBATCH ' +
             inputPath
@@ -154,7 +176,17 @@ async function createMainWindow() {
         }
     })
 
-    exec('gs --version', error => {
+    let gsPlatform = ''
+    if (process.platform === 'win32') {
+        if (os.arch() === 'x64') {
+            gsPlatform = 'gswin64c'
+        } else {
+            gsPlatform = 'gswin32c'
+        }
+    } else {
+        gsPlatform = 'gs'
+    }
+    exec(gsPlatform + ' --version', error => {
         if (error) {
             return
         } else {
