@@ -2,13 +2,14 @@ import { app, protocol, BrowserWindow, ipcMain, dialog, shell } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 import path from 'path'
-import os from 'os'
+const { exec, execSync } = require('child_process')
 
 protocol.registerSchemesAsPrivileged([
     { scheme: 'app', privileges: { secure: true, standard: true, supportFetchAPI: true } }
 ])
 
 let mainWindow = null
+let ghostscriptFlag = false
 async function createMainWindow() {
     // 禁止程序多开
     if (!app.requestSingleInstanceLock()) {
@@ -107,7 +108,52 @@ async function createMainWindow() {
             platform,
             platform === 'win' ? 'ffprobe.exe' : 'ffprobe'
         )
-        return { ffmpegPath: ffmpegPath, ffprobePath: ffprobePath, desktopPath: app.getPath('desktop') }
+        return {
+            ffmpegPath: ffmpegPath,
+            ffprobePath: ffprobePath,
+            desktopPath: app.getPath('desktop'),
+            ghostscriptFlag: ghostscriptFlag
+        }
+    })
+
+    ipcMain.handle('compressPdf', async (event, inputPath, outputPath, pdfQuality) => {
+        let command =
+            'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/' +
+            pdfQuality +
+            ' -dNOPAUSE -dQUIET -dBATCH -sOutputFile=' +
+            outputPath +
+            ' ' +
+            inputPath
+        let result = execSync(command)
+        if (result.toString()) {
+            console.log(result.toString())
+            return false
+        } else {
+            return true
+        }
+    })
+
+    ipcMain.handle('pdfToImage', async (event, inputPath, outputPath) => {
+        let command =
+            'gs -sDEVICE=png16m -r300 -dFirstPage=1 -dLastPage=1 -o ' +
+            outputPath +
+            ' -dNOPAUSE -dQUIET -dBATCH ' +
+            inputPath
+        let result = execSync(command)
+        if (result.toString()) {
+            console.log(result.toString())
+            return false
+        } else {
+            return true
+        }
+    })
+
+    exec('gs --version', error => {
+        if (error) {
+            return
+        } else {
+            ghostscriptFlag = true
+        }
     })
 }
 

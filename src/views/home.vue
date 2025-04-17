@@ -414,18 +414,19 @@ export default {
                 { value: 28, label: 'medium' },
                 { value: 30, label: 'acceptable' }
             ],
-            pdfFormat: 'pdf',
-            pdfQuality: 'hight',
+            pdfFormat: 'same',
+            pdfQuality: 'ebook',
             pdfQualityOptions: [
-                { value: 'best', label: 'best' },
-                { value: 'hight', label: 'hight' },
-                { value: 'balance', label: 'balance' },
-                { value: 'low', label: 'low' }
+                { value: 'prepress', label: 'best' },
+                { value: 'printer', label: 'hight' },
+                { value: 'ebook', label: 'balance' },
+                { value: 'screen', label: 'low' } //default
             ],
             disabled: false,
             dirname: '',
             completeNumber: 0,
-            slider: 0
+            slider: 0,
+            ghostscriptFlag: false
         }
     },
     watch: {
@@ -510,6 +511,7 @@ export default {
             ffmpeg.setFfmpegPath(result.ffmpegPath)
             ffmpeg.setFfprobePath(result.ffprobePath)
             this.outputDir = result.desktopPath
+            this.ghostscriptFlag = result.ghostscriptFlag
             this.isFfmpeg = true
         },
         async handleClick() {
@@ -563,10 +565,10 @@ export default {
                 this.fileList.splice(index, 1)
             }
         },
-        walkDir(dir) {
+        async walkDir(dir) {
             let lstatSync = fs.lstatSync(dir)
             if (lstatSync.isDirectory()) {
-                fs.readdirSync(dir).forEach(item => {
+                fs.readdirSync(dir).forEach(async item => {
                     let fullPath = path.join(dir, item)
                     let stat = fs.lstatSync(fullPath)
                     if (stat.isDirectory()) {
@@ -618,18 +620,33 @@ export default {
                                     fs.unlinkSync(this.dirname + '/' + timestamp + '.png')
                                 })
                                 .save(this.dirname + '/' + timestamp + '.png')
-                        } else if (this.pdfAccept.includes(format)) {
-                            this.fileList.push({
-                                type: 'pdf',
-                                name: item,
-                                format: format,
-                                sourcePath: fullPath,
-                                sourceSize: stat.size,
-                                targetPath: '',
-                                targetSize: '',
-                                percentage: 0,
-                                status: 'prepare'
+                        } else if (this.pdfAccept.includes(format) && this.ghostscriptFlag) {
+                            let that = this
+                            fs.mkdir(this.dirname, { recursive: true }, err => {
+                                if (err) {
+                                    console.error(err)
+                                    return
+                                }
                             })
+                            const timestamp = Date.now()
+                            let outputPath = this.dirname + '/' + timestamp + '.png'
+                            let result = await window.ipcRenderer.invoke('pdfToImage', fullPath, outputPath)
+                            if (result) {
+                                let data = fs.readFileSync(outputPath)
+                                this.fileList.push({
+                                    type: 'pdf',
+                                    name: item,
+                                    format: format,
+                                    sourcePath: fullPath,
+                                    sourceSize: stat.size,
+                                    targetPath: '',
+                                    targetSize: '',
+                                    percentage: 0,
+                                    status: 'prepare',
+                                    base64: 'data:image/png;base64,' + data.toString('base64')
+                                })
+                                fs.unlinkSync(outputPath)
+                            }
                         }
                     }
                 })
@@ -680,18 +697,34 @@ export default {
                             fs.unlinkSync(this.dirname + '/' + timestamp + '.png')
                         })
                         .save(this.dirname + '/' + timestamp + '.png')
-                } else if (this.pdfAccept.includes(format)) {
-                    this.fileList.push({
-                        type: 'pdf',
-                        name: path.basename(dir),
-                        format: format,
-                        sourcePath: dir,
-                        sourceSize: lstatSync.size,
-                        targetPath: '',
-                        targetSize: '',
-                        percentage: 0,
-                        status: 'prepare'
+                } else if (this.pdfAccept.includes(format) && this.ghostscriptFlag) {
+                    let that = this
+                    fs.mkdir(this.dirname, { recursive: true }, err => {
+                        if (err) {
+                            console.error(err)
+                            return
+                        }
                     })
+                    const timestamp = Date.now()
+                    let outputPath = this.dirname + '/' + timestamp + '.png'
+
+                    let result = await window.ipcRenderer.invoke('pdfToImage', dir, outputPath)
+                    if (result) {
+                        let data = fs.readFileSync(outputPath)
+                        this.fileList.push({
+                            type: 'pdf',
+                            name: path.basename(dir),
+                            format: format,
+                            sourcePath: dir,
+                            sourceSize: lstatSync.size,
+                            targetPath: '',
+                            targetSize: '',
+                            percentage: 0,
+                            status: 'prepare',
+                            base64: 'data:image/png;base64,' + data.toString('base64')
+                        })
+                        fs.unlinkSync(outputPath)
+                    }
                 }
             }
         },
@@ -840,7 +873,34 @@ export default {
                 //this.$set(this.ffmpegList, this.timestampList.indexOf(timestamp), command)
             }
         },
-        compressPdf(index, attribute) {},
+        async compressPdf(index, attribute) {
+            let outputPath = this.outputDir + '/mimosa' + attribute.sourcePath.replace(this.dirname, '')
+            if (this.pdfFormat != 'same') {
+                outputPath = outputPath.replace('.' + attribute.format, '.' + this.imageFormat)
+            }
+            fs.mkdir(path.dirname(outputPath), { recursive: true }, err => {
+                if (err) {
+                    console.error(err)
+                    return
+                }
+            })
+            let result = await window.ipcRenderer.invoke(
+                'compressPdf',
+                attribute.sourcePath,
+                outputPath,
+                this.pdfQuality
+            )
+            if (result) {
+                const stats = fs.statSync(outputPath)
+                attribute.targetSize = stats.size
+                attribute.targetPath = outputPath
+                attribute.status = 'success'
+            } else {
+                attribute.status = 'error'
+            }
+            this.completeNumber = this.completeNumber + 1
+            this.$set(this.fileList, index, attribute)
+        },
         formatSize(numberOfBytes) {
             if (numberOfBytes) {
                 const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
