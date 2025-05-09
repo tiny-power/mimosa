@@ -79,15 +79,16 @@ async function createMainWindow() {
 
     ipcMain.handle('getFfmpegPath', async () => {
         let platform = process.platform
+        let arch = os.arch()
         let resourcesPath = process.resourcesPath
         if (process.platform == 'darwin') {
-            platform = 'mac'
+            arch = ''
             resourcesPath = resourcesPath.replace(
                 'node_modules/electron/dist/Electron.app/Contents/Resources',
                 'public'
             )
         } else if (process.platform == 'win32') {
-            platform = 'win'
+            arch = ''
             resourcesPath = resourcesPath.replace('node_modules\\electron\\dist\\resources', 'public')
         } else {
             resourcesPath = resourcesPath.replace(
@@ -100,14 +101,16 @@ async function createMainWindow() {
             process.env.WEBPACK_DEV_SERVER_URL ? '' : 'app.asar.unpacked',
             'bin',
             platform,
-            platform === 'win' ? 'ffmpeg.exe' : 'ffmpeg'
+            arch,
+            'ffmpeg'
         )
         let ffprobePath = path.join(
             resourcesPath,
             process.env.WEBPACK_DEV_SERVER_URL ? '' : 'app.asar.unpacked',
             'bin',
             platform,
-            platform === 'win' ? 'ffprobe.exe' : 'ffprobe'
+            arch,
+            'ffprobe'
         )
         return {
             ffmpegPath: ffmpegPath,

@@ -1,6 +1,6 @@
 {
     "name": "mimosa",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "private": true,
     "description": "Smart video and image compressor - Minimal quality loss",
     "author": {
